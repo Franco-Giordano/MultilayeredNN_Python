@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import test
 
 class NeuralNetwork:
     
@@ -125,34 +126,36 @@ if __name__ == '__main__':
     with np.load('mnist.npz') as data:
         training_images = data['training_images']
         training_labels = data['training_labels']
+        test_img = data['test_images']
         
     layer_sizes = (784,10,10)
     
-    carlos = NeuralNetwork(layer_sizes)
+    carlos = NeuralNetwork(layer_sizes, 0.05)
     
-    iters, costos = carlos.stochastic_gradient_descent(training_images, training_labels, 10000)
+    iters, costos = carlos.stochastic_gradient_descent(training_images, training_labels, 100000)
     plt.plot(iters,costos)
     plt.show()
-    plt.imshow(training_images[7].reshape(28,28), cmap = 'gray')
-    plt.show()
-    
-    precision = sum([])
-    prediccion = carlos.predict(training_images[7])
-    for i,a in zip(range(layer_sizes[-1]),prediccion):
-        opcional = ""
-        if i == np.argmax(prediccion):
-            opcional = "<--- Creo que es un {}!".format(i) 
-        print("Chances de que sea {}: {}".format(i, a), opcional)
     
     carlos.imprimir_precision(training_images, training_labels)
     
     while True:
+        rand = random.randint(0,len(test_img) - 1)
+            
+        prediccion = carlos.predict(test_img[rand])
+        for i,a in zip(range(layer_sizes[-1]),prediccion):
+            opcional = ""
+            if i == np.argmax(prediccion):
+                opcional = "<--- Creo que es un {}!".format(i) 
+            print("Chances de que sea {}: {}".format(i, a), opcional)
+            
+        plt.imshow(test_img[rand].reshape(28,28), cmap = 'gray')
+        plt.show()        
+
+            
         x = input("Comando: ")
         
-        if x == '':
+        if x == 'quit':
             break
-        
-        eval(x)
 
 
 
