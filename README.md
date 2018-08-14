@@ -1,4 +1,4 @@
-# Multilayered Neural Network con Backpropagation (Stochastic Gradient Descent)- Python
+# Multilayered Neural Network con Backpropagation (Stochastic Gradient Descent) - Python
 
 **Siguientes pasos:**
 - [x] Mostrar evolucion del costo durante el entrenamiento
