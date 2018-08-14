@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import test
 
 class NeuralNetwork:
     
@@ -117,8 +116,6 @@ class NeuralNetwork:
         print('{}/{} precision: {}%'.format(num_correct, len(t_imgs), (num_correct/len(t_imgs))*100))
         
 
-
-
 if __name__ == '__main__':
     
     np.random.seed(1)
@@ -156,13 +153,5 @@ if __name__ == '__main__':
         
         if x == 'quit':
             break
-
-
-
-
-
-
-
-
 
 
