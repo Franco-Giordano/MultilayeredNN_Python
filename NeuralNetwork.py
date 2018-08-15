@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import convert_image_to_mnist
+import save_painting
 
 class NeuralNetwork:
     
@@ -10,6 +12,8 @@ class NeuralNetwork:
         weight_shapes = [(a,b) for a,b in zip(layer_sizes[1:],layer_sizes[:-1])]
         
         self.lr = lr
+        
+        self.layer_sizes = layer_sizes
         
         #cantidad de capas de la NN
         self.num_layers = len(layer_sizes)
@@ -108,13 +112,27 @@ class NeuralNetwork:
         self.weights = [w - self.lr * nw for w,nw in zip(self.weights, delta_w)]
         self.biases = [b - self.lr * nb for b,nb in zip(self.biases, delta_b)]
     
-    def imprimir_precision(self, t_imgs, t_lbls):
+    def obtener_precision(self, t_imgs, t_lbls, extras = False):
+ 
         predicciones = []
         for t in t_imgs:
             predicciones.append(self.predict(t))
         num_correct = sum([np.argmax(pred) == np.argmax(lbl) for pred,lbl in zip(predicciones, t_lbls)])
-        print('{}/{} precision: {}%'.format(num_correct, len(t_imgs), (num_correct/len(t_imgs))*100))
         
+        if extras:
+            return num_correct, len(t_imgs), (num_correct/len(t_imgs))*100
+        return (num_correct/len(t_imgs))*100
+    
+    def imprimir_precision(self, t_imgs, t_lbls, debug = False):
+        
+        num_correct, total, porcentaje = self.obtener_precision(t_imgs, t_lbls, extras = True)
+        
+        print('{}/{} precision: {}%'.format(num_correct, total, porcentaje))
+        
+        if debug:
+            print("Ajustes: \n    LR: {}, Capas: {}".format(self.lr, self.layer_sizes))
+            
+            
 
 if __name__ == '__main__':
     
@@ -127,7 +145,7 @@ if __name__ == '__main__':
         
     layer_sizes = (784,10,10)
     
-    carlos = NeuralNetwork(layer_sizes, 0.05)
+    carlos = NeuralNetwork(layer_sizes, 0.1)
     
     iters, costos = carlos.stochastic_gradient_descent(training_images, training_labels, 100000)
     plt.plot(iters,costos)
@@ -135,18 +153,25 @@ if __name__ == '__main__':
     
     carlos.imprimir_precision(training_images, training_labels)
     
+    
     while True:
-        rand = random.randint(0,len(test_img) - 1)
+        
+        painter = save_painting.Painter(200, 200, (0,0,0))
+        painter.create_canvas()
+        
+        array_dibujado = convert_image_to_mnist.import_image("image.png")
             
-        prediccion = carlos.predict(test_img[rand])
+        prediccion = carlos.predict(array_dibujado)
+        
         for i,a in zip(range(layer_sizes[-1]),prediccion):
             opcional = ""
             if i == np.argmax(prediccion):
                 opcional = "<--- Creo que es un {}!".format(i) 
             print("Chances de que sea {}: {}".format(i, a), opcional)
             
-        plt.imshow(test_img[rand].reshape(28,28), cmap = 'gray')
-        plt.show()        
+        plt.imshow(array_dibujado.reshape(28,28), cmap = 'gray')
+        plt.show()
+        
 
             
         x = input("Comando: ")
