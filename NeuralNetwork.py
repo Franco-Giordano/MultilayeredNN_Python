@@ -151,9 +151,8 @@ class NeuralNetwork:
         network will be evaluated against the test data after each
         epoch, and partial progress printed out.  This is useful for
         tracking progress, but slows things down substantially."""
-        random.seed(1)
-        if test_imgs and test_lbls: 
-            n_test = len(test_imgs)
+        es = []
+        ps = []
         n = len(t_imgs)
         for j in range(epochs):
             s = np.arange(t_imgs.shape[0])
@@ -163,7 +162,16 @@ class NeuralNetwork:
             mini_batches = [(t_imgs[k:k+mini_batch_size],t_lbls[k:k+mini_batch_size]) for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch[0], mini_batch[1])
-            print("Epoch {} complete".format(j))
+            if test_imgs.any() and test_lbls.any():
+                precision = self.obtener_precision(test_imgs, test_lbls)
+                ps.append(precision)
+                es.append(j)
+                print("Epoch {} complete. Precision: {}%".format(j, precision))
+            else:
+                print("Epoch {} complete".format(j))
+                
+        if test_imgs.any() and test_lbls.any():
+            return es,ps
 
     def update_mini_batch(self, mb_imgs, mb_lbls):
         """Update the network's weights and biases by applying
