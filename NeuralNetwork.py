@@ -130,9 +130,55 @@ class NeuralNetwork:
         print('{}/{} precision: {}%'.format(num_correct, total, porcentaje))
         
         if debug:
-            print("Ajustes: \n    LR: {}, Capas: {}".format(self.lr, self.layer_sizes))
+            print("Ajustes:\n    LR: {}\n    Capas: {}".format(self.lr, self.layer_sizes))
+    
+    def save_hyperparam(self, path = "hyperparameters.npz"):
+        np.savez(path, weights = self.weights, biases = self.biases, layer_sizes = self.layer_sizes)
+
+    def load_hyperparam(self, path):
+        
+        with np.load(path) as data:
+            self.weights = data['weights']
+            self.biases = data['biases']
+            self.layer_sizes = tuple(data['layer_sizes'])
             
-            
+    def SGD(self, t_imgs, t_lbls, mini_batch_size=100, epochs = 40, test_imgs = None, test_lbls = None):
+        """Train the neural network using mini-batch stochastic
+        gradient descent.  The ``training_data`` is a list of tuples
+        ``(x, y)`` representing the training inputs and the desired
+        outputs.  The other non-optional parameters are
+        self-explanatory.  If ``test_data`` is provided then the
+        network will be evaluated against the test data after each
+        epoch, and partial progress printed out.  This is useful for
+        tracking progress, but slows things down substantially."""
+        random.seed(1)
+        if test_imgs and test_lbls: 
+            n_test = len(test_imgs)
+        n = len(t_imgs)
+        for j in range(epochs):
+            s = np.arange(t_imgs.shape[0])
+            np.random.shuffle(s)
+            t_imgs = t_imgs[s]
+            t_lbls = t_lbls[s]            
+            mini_batches = [(t_imgs[k:k+mini_batch_size],t_lbls[k:k+mini_batch_size]) for k in range(0, n, mini_batch_size)]
+            for mini_batch in mini_batches:
+                self.update_mini_batch(mini_batch[0], mini_batch[1])
+            print("Epoch {} complete".format(j))
+
+    def update_mini_batch(self, mb_imgs, mb_lbls):
+        """Update the network's weights and biases by applying
+        gradient descent using backpropagation to a single mini batch.
+        The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
+        is the learning rate."""
+        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_w = [np.zeros(w.shape) for w in self.weights]
+        for x, y in zip(mb_imgs, mb_lbls):
+            delta_nabla_w, delta_nabla_b = self.single_backpropagate(x, y)
+            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
+        self.weights = [w-(self.lr/len(mb_imgs))*nw for w, nw in zip(self.weights, nabla_w)]
+        self.biases = [b-(self.lr/len(mb_imgs))*nb for b, nb in zip(self.biases, nabla_b)]
+
 
 if __name__ == '__main__':
     
@@ -147,11 +193,15 @@ if __name__ == '__main__':
     
     carlos = NeuralNetwork(layer_sizes, 0.1)
     
-    iters, costos = carlos.stochastic_gradient_descent(training_images, training_labels, 100000)
+    """iters, costos = carlos.stochastic_gradient_descent(training_images, training_labels, 100000)
     plt.plot(iters,costos)
-    plt.show()
+    plt.show()"""
+    
+    carlos.SGD(training_images, training_labels, 50)
     
     carlos.imprimir_precision(training_images, training_labels)
+    
+    carlos.save_hyperparam("hyper_mnist_sgd_batches.npz")
     
     
     while True:
@@ -159,14 +209,14 @@ if __name__ == '__main__':
         painter = save_painting.Painter(200, 200, (0,0,0))
         painter.create_canvas()
         
-        array_dibujado = convert_image_to_mnist.import_image("image.png")
+        array_dibujado = convert_image_to_mnist.import_image("image.png", (28,28))
             
         prediccion = carlos.predict(array_dibujado)
         
         for i,a in zip(range(layer_sizes[-1]),prediccion):
             opcional = ""
             if i == np.argmax(prediccion):
-                opcional = "<--- Creo que es un {}!".format(i) 
+                opcional = "<--- Creo que es un {}!".format(i)
             print("Chances de que sea {}: {}".format(i, a), opcional)
             
         plt.imshow(array_dibujado.reshape(28,28), cmap = 'gray')
