@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import random
 import convert_image_to_mnist
 import save_painting
+import serial #solo usado al final, si es __main__, para hablar con ARDUINO
 
 class NeuralNetwork:
     
@@ -190,27 +191,39 @@ class NeuralNetwork:
 
 if __name__ == '__main__':
     
-    np.random.seed(1)
+    np.random.seed(10)
     
     with np.load('mnist.npz') as data:
         training_images = data['training_images']
         training_labels = data['training_labels']
         test_img = data['test_images']
+        test_labels = data['test_labels']
         
     layer_sizes = (784,10,10)
     
     carlos = NeuralNetwork(layer_sizes, 0.1)
     
-    """iters, costos = carlos.stochastic_gradient_descent(training_images, training_labels, 100000)
-    plt.plot(iters,costos)
-    plt.show()"""
-    
-    carlos.SGD(training_images, training_labels, 50)
-    
-    carlos.imprimir_precision(training_images, training_labels)
-    
-    carlos.save_hyperparam("hyper_mnist_sgd_batches.npz")
-    
+    #carlos.load_hyperparam("hyper_mnist_sgd_batches.npz")
+
+    es,ps = [],[]
+
+    try:
+        #brain.stochastic_gradient_descent(data[:-50], lbls[:-50], 1000000)
+
+        es,ps = carlos.SGD(training_images, training_labels, mini_batch_size=50, epochs=50, test_imgs = test_img, test_lbls = test_labels)
+        plt.plot(es,ps)
+        plt.show()
+        #pass
+    except KeyboardInterrupt:
+        print("Entrenamiento detenido")
+    finally:
+        carlos.imprimir_precision(training_images, training_labels)
+        carlos.imprimir_precision(test_img, test_labels, debug = True)
+
+        #carlos.save_hyperparam("hyper_mnist_sgd_batches.npz")    
+
+    ser = serial.Serial("COM3", 9600)
+    print("Conectado a ARDUINO")
     
     while True:
         
@@ -220,17 +233,20 @@ if __name__ == '__main__':
         array_dibujado = convert_image_to_mnist.import_image("image.png", (28,28))
             
         prediccion = carlos.predict(array_dibujado)
-        
+
+        num = "0"
         for i,a in zip(range(layer_sizes[-1]),prediccion):
             opcional = ""
             if i == np.argmax(prediccion):
                 opcional = "<--- Creo que es un {}!".format(i)
+                num = str(i)
             print("Chances de que sea {}: {}".format(i, a), opcional)
             
         plt.imshow(array_dibujado.reshape(28,28), cmap = 'gray')
         plt.show()
-        
 
+        print("Enviando {} a ARDUINO".format(num))
+        ser.write(str.encode(num))
             
         x = input("Comando: ")
         
