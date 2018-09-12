@@ -5,7 +5,7 @@
 - [x] Poder ciclear por varios ejemplos
 - [x] Poder predecir imagenes creadas por el usuario, en el momento.
 - [x] Mejorar el Stochastic Gradient Descent para que trabaje en mini-batches, y no en ejemplos aislados. Estudiar cambio en costo / precision final
-- [ ] Probar mas combinaciones de capas ocultas / learning rate / iteraciones o epochs
+- [ ] [Optimizar hiperparametros con un Genetic Algorithm](https://towardsdatascience.com/gas-and-nns-6a41f1e8146d) (concepto tambien usado [aca por SethBling](https://www.youtube.com/watch?v=qv6UVOQ0F44))
 - [ ] Hallar mas casos (y datasets!) donde una NN con backpropagation sea efectiva
 - [ ] Probar otras funciones de activacion, otras funciones de costo (y softmax?)
 
