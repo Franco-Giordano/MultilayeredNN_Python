@@ -27500,8 +27500,6 @@ __pycache__/
 2_DogsVsCats/gato/997.jpg
 2_DogsVsCats/gato/998.jpg
 2_DogsVsCats/gato/999.jpg
-2_DogsVsCats/hyper_dogs_cats.npz
-2_DogsVsCats/hyper_dogs_cats_MEGA.npz
 2_DogsVsCats/perro/0.jpg
 2_DogsVsCats/perro/1.jpg
 2_DogsVsCats/perro/10.jpg
@@ -30501,7 +30499,7 @@ __pycache__/
 2_DogsVsCats/perro/997.jpg
 2_DogsVsCats/perro/998.jpg
 2_DogsVsCats/perro/999.jpg
-2_DogsVsCats/test_dogs_vs_cats.py
+
 2_DogsVsCats/test_gato/3000.jpg
 2_DogsVsCats/test_gato/3001.jpg
 2_DogsVsCats/test_gato/3002.jpg
