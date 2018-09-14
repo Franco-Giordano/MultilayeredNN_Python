@@ -5,7 +5,7 @@ sys.path.append('../src')
 from NeuralNetwork import NeuralNetwork
 import random
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def main():
 
@@ -13,7 +13,7 @@ def main():
 
     configsPosibles = {'num_inputs': 784, 'num_outputs': 10, 'max_num_layers': 2, 'max_num_neuronas': 10}
 
-    tamPoblacion = 3
+    tamPoblacion = 4
 
     numGeneraciones = 6
 
@@ -23,9 +23,14 @@ def main():
 
     optima = mutador.correrGeneraciones()
 
+    gens = list(range(numGeneraciones+1))
+
     print("Mejor precision: ", optima[1])
 
     optima[0].save_hyperparam(path="genetic_hyper.npz")
+
+    plt.plot(gens, mutador.fitnessPromedioPorGen)
+    plt.show()
 
 class Mutador:
 
@@ -64,17 +69,18 @@ class Mutador:
             print("     PROMEDIO FITNESS: {}".format(self.fitnessPromedioPorGen[-1]))
 
         mejor = self.getMejorHabitanteActual()
-        mejor[1] = (mejor[1] * 1000) ** (1/3)
 
         return mejor
 
     def entrenarYCalificarPoblacion(self):
 
         print("     Iniciando entrenamiento de poblacion...")
+        forma = [p[0].layer_sizes for p in self.poblacionCalificada]
+        print("         Forma poblacion: {}".format(forma))
         for i, tupla in enumerate(self.poblacionCalificada):
             nn = tupla[0]
 
-            nn.SGD(self.dataset['training_images'], self.dataset['training_labels'], epochs=5)  # TODO: HACER QUE NO IMPRIMA EL SGD -----------------------------------------------
+            nn.SGD(self.dataset['training_images'], self.dataset['training_labels'], epochs=10)  # TODO: HACER QUE NO IMPRIMA EL SGD -----------------------------------------------
 
             tupla[1] = self.evaluarFitness(nn)
 
@@ -90,11 +96,11 @@ class Mutador:
     def evaluarFitness(self, neuralNetwork):
 
         precision = neuralNetwork.obtener_precision(self.dataset['test_images'], self.dataset['test_labels'])
-        return (precision ** 3) / 1000
+        return precision
 
     def evolucionarPoblacion(self):
 
-        mejores, randoms = self.filtrarMejoresYRandom(porcentajeMejores=0.3, porcentajeRndm=0.1)
+        mejores, randoms = self.filtrarMejoresYRandom(porcentajeMejores=0.3, porcentajeRndm=0.3)
 
         pobParcial = mejores + randoms
 
@@ -170,7 +176,7 @@ class Mutador:
         for i in range(len(pob)):
             propsNN = pob[i].layer_sizes
 
-            capaRandom = random.randint(1, self.configsPosibles['max_num_layers'])
+            capaRandom = random.randint(1, len(propsNN) - 1)
             propsNN[capaRandom] = random.randint(1, self.configsPosibles['max_num_neuronas'])
 
             pob[i] = NeuralNetwork(propsNN)
