@@ -176,7 +176,7 @@ class Mutador:
         for i in range(len(pob)):
             propsNN = pob[i].layer_sizes
 
-            capaRandom = random.randint(1, len(propsNN) - 1)
+            capaRandom = random.randint(1, len(propsNN) - 2)
             propsNN[capaRandom] = random.randint(1, self.configsPosibles['max_num_neuronas'])
 
             pob[i] = NeuralNetwork(propsNN)
