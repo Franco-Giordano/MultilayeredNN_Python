@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../src')
+#asi puedo importar de src
+
 from NeuralNetwork import *
 
 np.random.seed(1)

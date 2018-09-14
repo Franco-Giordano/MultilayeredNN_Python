@@ -147,7 +147,7 @@ class NeuralNetwork:
             self.biases = data['biases']
             self.layer_sizes = tuple(data['layer_sizes'])
             
-    def SGD(self, t_imgs, t_lbls, mini_batch_size=100, epochs = 40, test_imgs = None, test_lbls = None):
+    def SGD(self, t_imgs, t_lbls, mini_batch_size=100, epochs = 40, test_imgs = np.array([]), test_lbls = np.array([])):
         """Train the neural network using mini-batch stochastic
         gradient descent.  The ``training_data`` is a list of tuples
         ``(x, y)`` representing the training inputs and the desired
